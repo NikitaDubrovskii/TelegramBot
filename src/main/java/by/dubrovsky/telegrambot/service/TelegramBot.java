@@ -3,6 +3,8 @@ package by.dubrovsky.telegrambot.service;
 import by.dubrovsky.telegrambot.config.BotConfig;
 import by.dubrovsky.telegrambot.model.User;
 import by.dubrovsky.telegrambot.repository.UserRepository;
+import com.vdurmont.emoji.Emoji;
+import com.vdurmont.emoji.EmojiParser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -101,7 +103,8 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
     private void startCommandReceived(Long chatId, String name) {
-        String answer = "Привет, " + name;
+//        String answer = "Привет, " + name;
+        String answer = EmojiParser.parseToUnicode("Привет, " + name + " :blush:");
         log.info("Ответ пользователю " + name);
         sendMessage(chatId, answer);
     }
