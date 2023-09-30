@@ -1,22 +1,28 @@
 package by.dubrovsky.telegrambot.service;
 
 import by.dubrovsky.telegrambot.config.BotConfig;
+import by.dubrovsky.telegrambot.model.User;
+import by.dubrovsky.telegrambot.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
 @Component
 @Slf4j
 public class TelegramBot extends TelegramLongPollingBot {
+
+    private UserRepository userRepository;
 
     final BotConfig botConfig;
 
@@ -34,8 +40,9 @@ public class TelegramBot extends TelegramLongPollingBot {
             /settings - настройки
             """;
 
-    public TelegramBot(BotConfig config) {
+    public TelegramBot(UserRepository userRepository, BotConfig config) {
         super(config.getToken());
+        this.userRepository = userRepository;
         this.botConfig = config;
         List<BotCommand> botCommandsList = new ArrayList<>();
         botCommandsList.add(new BotCommand("/start", "начать"));
@@ -63,6 +70,7 @@ public class TelegramBot extends TelegramLongPollingBot {
 
             switch (messageText) {
                 case "/start":
+                    registerUser(update.getMessage());
                     startCommandReceived(chatId, update.getMessage().getChat().getFirstName());
                     break;
                 case "/help":
@@ -71,6 +79,24 @@ public class TelegramBot extends TelegramLongPollingBot {
                 default:
                     sendMessage(chatId, "Извините, команда не поддерживается");
             }
+        }
+    }
+
+    private void registerUser(Message msg) {
+        if (userRepository.findById(msg.getChatId()).isEmpty()) {
+            var chatId = msg.getChatId();
+            var chat = msg.getChat();
+
+            User user = new User();
+            user.setChatId(chatId);
+            user.setFirstName(chat.getFirstName());
+            user.setLastName(chat.getLastName());
+            user.setUserName(chat.getUserName());
+            user.setRegisteredAt(new Timestamp(System.currentTimeMillis()));
+
+            userRepository.save(user);
+
+            log.info("Пользователь сохранен: " + user);
         }
     }
 
