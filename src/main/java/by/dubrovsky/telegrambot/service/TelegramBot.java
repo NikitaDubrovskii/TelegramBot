@@ -4,7 +4,6 @@ import by.dubrovsky.telegrambot.config.BotConfig;
 import by.dubrovsky.telegrambot.model.User;
 import by.dubrovsky.telegrambot.repository.UserRepository;
 import com.vdurmont.emoji.EmojiParser;
-import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -35,17 +34,21 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     static final String HELP_TEXT = """
             Этот бот сделан для демонстрации моих возможностей и для Максима. ЛТ.
-            
+                        
             /start - для начала\s
-            
+                        
             /data - для отображения своих данных\s
-            
+                        
             /deletedata - для удаления своих данных\s
-            
+                        
             /help - помощь\s
-            
+                        
             /settings - настройки
             """;
+
+    static final String YES_BTN = "YES_BTN";
+    static final String NO_BTN = "NO_BTN";
+    public static final String ERROR_TEXT = "Ошибка: ";
 
     public TelegramBot(UserRepository userRepository, BotConfig config) {
         super(config.getToken());
@@ -80,54 +83,49 @@ public class TelegramBot extends TelegramLongPollingBot {
                 var textToSend = EmojiParser.parseToUnicode(messageText.substring(messageText.indexOf(" ")));
                 var users = userRepository.findAll();
                 for (User user : users) {
-                    sendMessage(user.getChatId(), textToSend);
+                    prepareAndSendMessage(user.getChatId(), textToSend);
                 }
-            }
-
-            switch (messageText) {
-                case "/start":
-                    registerUser(update.getMessage());
-                    startCommandReceived(chatId, update.getMessage().getChat().getFirstName());
-                    break;
-                case "/help":
-                    sendMessage(chatId, HELP_TEXT);
-                    break;
-                case "/register":
-                    register(chatId);
-                    break;
-                default:
-                    sendMessage(chatId, "Извините, команда не поддерживается");
+            } else {
+                switch (messageText) {
+                    case "/start":
+                        registerUser(update.getMessage());
+                        startCommandReceived(chatId, update.getMessage().getChat().getFirstName());
+                        break;
+                    case "/help":
+                        prepareAndSendMessage(chatId, HELP_TEXT);
+                        break;
+                    case "/register":
+                        register(chatId);
+                        break;
+                    default:
+                        prepareAndSendMessage(chatId, "Извините, команда не поддерживается");
+                }
             }
         } else if (update.hasCallbackQuery()) {
             String callbackData = update.getCallbackQuery().getData();
             long messageId = update.getCallbackQuery().getMessage().getMessageId();
             long chatId = update.getCallbackQuery().getMessage().getChatId();
 
-            if (callbackData.equals("YES_BTN")) {
+            if (callbackData.equals(YES_BTN)) {
                 String text = "Вы нажали ДА";
-                EditMessageText message = new EditMessageText();
-                message.setChatId(chatId);
-                message.setText(text);
-                message.setMessageId((int) messageId);
-
-                try {
-                    execute(message);
-                } catch (TelegramApiException e) {
-                    log.error("Ошибка: " + e.getMessage());
-                }
-            } else if (callbackData.equals("NO_BTN")) {
+                executeEditMessageText(messageId, chatId, text);
+            } else if (callbackData.equals(NO_BTN)) {
                 String text = "Вы нажали НЕТ";
-                EditMessageText message = new EditMessageText();
-                message.setChatId(chatId);
-                message.setText(text);
-                message.setMessageId((int) messageId);
-
-                try {
-                    execute(message);
-                } catch (TelegramApiException e) {
-                    log.error("Ошибка: " + e.getMessage());
-                }
+                executeEditMessageText(messageId, chatId, text);
             }
+        }
+    }
+
+    private void executeEditMessageText(long messageId, long chatId, String text) {
+        EditMessageText message = new EditMessageText();
+        message.setChatId(chatId);
+        message.setText(text);
+        message.setMessageId((int) messageId);
+
+        try {
+            execute(message);
+        } catch (TelegramApiException e) {
+            log.error(ERROR_TEXT + e.getMessage());
         }
     }
 
@@ -142,11 +140,11 @@ public class TelegramBot extends TelegramLongPollingBot {
 
         var yesButton = new InlineKeyboardButton();
         yesButton.setText("Да");
-        yesButton.setCallbackData("YES_BTN");
+        yesButton.setCallbackData(YES_BTN);
 
         var noButton = new InlineKeyboardButton();
         noButton.setText("Нет");
-        noButton.setCallbackData("NO_BTN");
+        noButton.setCallbackData(NO_BTN);
 
         keyboardButtons.add(yesButton);
         keyboardButtons.add(noButton);
@@ -156,11 +154,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         keyboardMarkup.setKeyboard(keyboardButtonList);
         message.setReplyMarkup(keyboardMarkup);
 
-        try {
-            execute(message);
-        } catch (TelegramApiException e) {
-            log.error("Ошибка: " + e.getMessage());
-        }
+        executeMessage(message);
     }
 
     private void registerUser(Message msg) {
@@ -182,7 +176,6 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
     private void startCommandReceived(Long chatId, String name) {
-//        String answer = "Привет, " + name;
         String answer = EmojiParser.parseToUnicode("Привет, " + name + " :blush:");
         log.info("Ответ пользователю " + name);
         sendMessage(chatId, answer);
@@ -212,10 +205,21 @@ public class TelegramBot extends TelegramLongPollingBot {
 
         message.setReplyMarkup(replyKeyboardMarkup);
 
+        executeMessage(message);
+    }
+
+    private void executeMessage(SendMessage message) {
         try {
             execute(message);
         } catch (TelegramApiException e) {
-            log.error("Ошибка: " + e.getMessage());
+            log.error(ERROR_TEXT + e.getMessage());
         }
+    }
+
+    private void prepareAndSendMessage(Long chatId, String textToSend) {
+        SendMessage message = new SendMessage();
+        message.setChatId(chatId);
+        message.setText(textToSend);
+        executeMessage(message);
     }
 }
