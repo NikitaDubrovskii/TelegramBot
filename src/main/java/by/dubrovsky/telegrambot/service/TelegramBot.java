@@ -4,6 +4,7 @@ import by.dubrovsky.telegrambot.config.BotConfig;
 import by.dubrovsky.telegrambot.model.User;
 import by.dubrovsky.telegrambot.repository.UserRepository;
 import com.vdurmont.emoji.EmojiParser;
+import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -74,6 +75,14 @@ public class TelegramBot extends TelegramLongPollingBot {
         if (update.hasMessage() && update.getMessage().hasText()) {
             String messageText = update.getMessage().getText();
             long chatId = update.getMessage().getChatId();
+
+            if (messageText.contains("/send") && botConfig.getOwnerId() == chatId) {
+                var textToSend = EmojiParser.parseToUnicode(messageText.substring(messageText.indexOf(" ")));
+                var users = userRepository.findAll();
+                for (User user : users) {
+                    sendMessage(user.getChatId(), textToSend);
+                }
+            }
 
             switch (messageText) {
                 case "/start":
