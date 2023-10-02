@@ -1,10 +1,13 @@
 package by.dubrovsky.telegrambot.service;
 
 import by.dubrovsky.telegrambot.config.BotConfig;
+import by.dubrovsky.telegrambot.model.Ads;
 import by.dubrovsky.telegrambot.model.User;
+import by.dubrovsky.telegrambot.repository.AdsRepository;
 import by.dubrovsky.telegrambot.repository.UserRepository;
 import com.vdurmont.emoji.EmojiParser;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
@@ -29,6 +32,7 @@ import java.util.List;
 public class TelegramBot extends TelegramLongPollingBot {
 
     private final UserRepository userRepository;
+    private final AdsRepository adsRepository;
 
     final BotConfig botConfig;
 
@@ -50,9 +54,10 @@ public class TelegramBot extends TelegramLongPollingBot {
     static final String NO_BTN = "NO_BTN";
     public static final String ERROR_TEXT = "Ошибка: ";
 
-    public TelegramBot(UserRepository userRepository, BotConfig config) {
+    public TelegramBot(UserRepository userRepository, AdsRepository adsRepository, BotConfig config) {
         super(config.getToken());
         this.userRepository = userRepository;
+        this.adsRepository = adsRepository;
         this.botConfig = config;
         List<BotCommand> botCommandsList = new ArrayList<>();
         botCommandsList.add(new BotCommand("/start", "начать"));
@@ -221,5 +226,17 @@ public class TelegramBot extends TelegramLongPollingBot {
         message.setChatId(chatId);
         message.setText(textToSend);
         executeMessage(message);
+    }
+
+    @Scheduled(cron = "${cron.scheduler}")
+    private void sendAds() {
+        var ads = adsRepository.findAll();
+        var users= userRepository.findAll();
+
+        for (Ads ad : ads) {
+            for (User user : users) {
+                prepareAndSendMessage(user.getChatId(), ad.getAd());
+            }
+        }
     }
 }
