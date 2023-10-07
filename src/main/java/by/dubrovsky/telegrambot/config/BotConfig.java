@@ -21,4 +21,10 @@ public class BotConfig {
     @Value("${bot.owner}")
     Long ownerId;
 
+    @Value("${openweather.token}")
+    String weatherToken;
+
+    @Value("${openweather.url}")
+    String weatherUrl;
+
 }

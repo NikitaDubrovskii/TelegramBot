@@ -1,13 +1,11 @@
 package by.dubrovsky.telegrambot.service;
 
 import by.dubrovsky.telegrambot.config.BotConfig;
-import by.dubrovsky.telegrambot.model.Ads;
 import by.dubrovsky.telegrambot.model.User;
 import by.dubrovsky.telegrambot.repository.AdsRepository;
 import by.dubrovsky.telegrambot.repository.UserRepository;
 import com.vdurmont.emoji.EmojiParser;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
@@ -17,14 +15,13 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 @Component
@@ -33,7 +30,7 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     private final UserRepository userRepository;
     private final AdsRepository adsRepository;
-
+    private final WeatherService weatherService;
     final BotConfig botConfig;
 
     static final String HELP_TEXT = """
@@ -41,31 +38,29 @@ public class TelegramBot extends TelegramLongPollingBot {
                         
             /start - для начала\s
                         
-            /data - для отображения своих данных\s
+            Погода - для отображения погоды в городе\s
                         
-            /deletedata - для удаления своих данных\s
-                        
-            /help - помощь\s
-                        
-            /settings - настройки
+            Помощь - помощь
             """;
 
     static final String YES_BTN = "YES_BTN";
     static final String NO_BTN = "NO_BTN";
     public static final String ERROR_TEXT = "Ошибка: ";
 
-    public TelegramBot(UserRepository userRepository, AdsRepository adsRepository, BotConfig config) {
+    // хранение состояния бота (ожидание введения города)
+    // TODO
+    private static final int WAITING_FOR_CITY = 1;
+
+    private HashMap<Long, Boolean> waitingForCity = new HashMap<>();
+
+    public TelegramBot(UserRepository userRepository, AdsRepository adsRepository, WeatherService weatherService, BotConfig config) {
         super(config.getToken());
         this.userRepository = userRepository;
         this.adsRepository = adsRepository;
+        this.weatherService = weatherService;
         this.botConfig = config;
         List<BotCommand> botCommandsList = new ArrayList<>();
         botCommandsList.add(new BotCommand("/start", "начать"));
-        botCommandsList.add(new BotCommand("/register", "регистрация"));
-        botCommandsList.add(new BotCommand("/mydata", "мои данные"));
-        botCommandsList.add(new BotCommand("/deletedata", "удалить данные"));
-        botCommandsList.add(new BotCommand("/help", "помощь"));
-        botCommandsList.add(new BotCommand("/settings", "настройки"));
         try {
             execute(new SetMyCommands(botCommandsList, new BotCommandScopeDefault(), null));
         } catch (TelegramApiException e) {
@@ -90,17 +85,23 @@ public class TelegramBot extends TelegramLongPollingBot {
                 for (User user : users) {
                     prepareAndSendMessage(user.getChatId(), textToSend);
                 }
+            } else if (waitingForCity.getOrDefault(chatId, false)) {
+                String message = update.getMessage().getText();
+                String weather = weatherService.getWeather(message);
+                showWeather(chatId, weather);
+                waitingForCity.remove(chatId);
             } else {
                 switch (messageText) {
                     case "/start":
                         registerUser(update.getMessage());
                         startCommandReceived(chatId, update.getMessage().getChat().getFirstName());
                         break;
-                    case "/help":
+                    case "Помощь":
                         prepareAndSendMessage(chatId, HELP_TEXT);
                         break;
-                    case "/register":
-                        register(chatId);
+                    case "Погода":
+                        prepareAndSendMessage(chatId, "В каком городе Вас интересует погода?");
+                        waitingForCity.put(chatId, true);
                         break;
                     default:
                         prepareAndSendMessage(chatId, "Извините, команда не поддерживается");
@@ -119,8 +120,24 @@ public class TelegramBot extends TelegramLongPollingBot {
                 executeEditMessageText(messageId, chatId, text);
             }
         }
+
     }
 
+    // погода
+    private void showWeather(Long chatId, String weather) {
+        SendMessage message = new SendMessage();
+        message.setChatId(chatId);
+
+        message.setText(weather);
+
+        try {
+            execute(message);
+        } catch (TelegramApiException e) {
+            log.error(ERROR_TEXT + e.getMessage());
+        }
+    }
+
+    // редактирование ответа от бота
     private void executeEditMessageText(long messageId, long chatId, String text) {
         EditMessageText message = new EditMessageText();
         message.setChatId(chatId);
@@ -134,7 +151,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
     }
 
-    private void register(Long chatId) {
+/*    private void register(Long chatId) {
         SendMessage message = new SendMessage();
         message.setChatId(chatId);
         message.setText("Вы хотите зарегистрироваться?");
@@ -160,8 +177,9 @@ public class TelegramBot extends TelegramLongPollingBot {
         message.setReplyMarkup(keyboardMarkup);
 
         executeMessage(message);
-    }
+    }*/
 
+    // запись пользователя в бд
     private void registerUser(Message msg) {
         if (userRepository.findById(msg.getChatId()).isEmpty()) {
             var chatId = msg.getChatId();
@@ -180,12 +198,14 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
     }
 
+    //приветствие
     private void startCommandReceived(Long chatId, String name) {
         String answer = EmojiParser.parseToUnicode("Привет, " + name + " :blush:");
         log.info("Ответ пользователю " + name);
         sendMessage(chatId, answer);
     }
 
+    // показывает клавиатуру
     private void sendMessage(Long chatId, String textToSend) {
         SendMessage message = new SendMessage();
         message.setChatId(chatId);
@@ -195,16 +215,17 @@ public class TelegramBot extends TelegramLongPollingBot {
         List<KeyboardRow> keyboardRows = new ArrayList<>();
         KeyboardRow row = new KeyboardRow();
         row.add("Погода");
-        row.add("Шутка");
+        row.add("Помощь");
 
         keyboardRows.add(row);
 
-        row = new KeyboardRow();
+        /*row = new KeyboardRow();
         row.add("Регистрация");
         row.add("Проверить свои данные");
         row.add("Удалить свои данные");
 
         keyboardRows.add(row);
+        */
 
         replyKeyboardMarkup.setKeyboard(keyboardRows);
 
@@ -213,6 +234,15 @@ public class TelegramBot extends TelegramLongPollingBot {
         executeMessage(message);
     }
 
+    // клавиатура не открывается
+    private void prepareAndSendMessage(Long chatId, String textToSend) {
+        SendMessage message = new SendMessage();
+        message.setChatId(chatId);
+        message.setText(textToSend);
+        executeMessage(message);
+    }
+
+    // отправка сообщения
     private void executeMessage(SendMessage message) {
         try {
             execute(message);
@@ -221,14 +251,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
     }
 
-    private void prepareAndSendMessage(Long chatId, String textToSend) {
-        SendMessage message = new SendMessage();
-        message.setChatId(chatId);
-        message.setText(textToSend);
-        executeMessage(message);
-    }
-
-    @Scheduled(cron = "${cron.scheduler}")
+/*    @Scheduled(cron = "${cron.scheduler}")
     private void sendAds() {
         var ads = adsRepository.findAll();
         var users= userRepository.findAll();
@@ -238,5 +261,6 @@ public class TelegramBot extends TelegramLongPollingBot {
                 prepareAndSendMessage(user.getChatId(), ad.getAd());
             }
         }
-    }
+    }*/
+
 }
