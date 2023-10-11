@@ -56,14 +56,6 @@ public class StartAction implements Action {
 
         keyboardRows.add(row);
 
-        /*row = new KeyboardRow();
-        row.add("Регистрация");
-        row.add("Проверить свои данные");
-        row.add("Удалить свои данные");
-
-        keyboardRows.add(row);
-        */
-
         replyKeyboardMarkup.setKeyboard(keyboardRows);
 
         message.setReplyMarkup(replyKeyboardMarkup);

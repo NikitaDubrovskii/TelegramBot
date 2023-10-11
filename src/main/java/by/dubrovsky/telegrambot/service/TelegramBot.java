@@ -1,30 +1,17 @@
 package by.dubrovsky.telegrambot.service;
 
 import by.dubrovsky.telegrambot.action.Action;
-import by.dubrovsky.telegrambot.config.BotView;
 import by.dubrovsky.telegrambot.config.BotConfig;
-import by.dubrovsky.telegrambot.model.User;
-import by.dubrovsky.telegrambot.repository.AdsRepository;
-import by.dubrovsky.telegrambot.repository.UserRepository;
-import com.vdurmont.emoji.EmojiParser;
+import by.dubrovsky.telegrambot.config.BotView;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
-import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
-import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
