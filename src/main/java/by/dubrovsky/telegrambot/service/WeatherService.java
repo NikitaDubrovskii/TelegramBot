@@ -30,13 +30,15 @@ public class WeatherService {
         Gson gson = new Gson();
         WeatherData weatherData = gson.fromJson(response, WeatherData.class);
 
-        String temp = String.valueOf(weatherData.getMain().getTemp());
-        String feelsLike = String.valueOf(weatherData.getMain().getFeelsLike());
+        String temp = String.valueOf(Math.round(weatherData.getMain().getTemp()));
+        String feelsLike = String.valueOf(Math.round(weatherData.getMain().getFeelsLike()));
         String discription = weatherData.getWeather().get(0).getDescription();
         String name = weatherData.getName();
+        String speed = String.valueOf(weatherData.getWind().getSpeed());
 
-        return STR. "Город: \{ name } \nТемпература: \{ temp } \n" +
-                STR. "Ощущается: \{ feelsLike } \nПогода: \{ discription }" ;
+        return STR. "Город: \{name} \nТемпература: \{temp} °C \n" +
+                STR. "Ощущается: \{feelsLike} °C \nПогода: \{discription} \n" +
+                STR. "Скорость ветра: \{speed} м/с";
     }
 
 }

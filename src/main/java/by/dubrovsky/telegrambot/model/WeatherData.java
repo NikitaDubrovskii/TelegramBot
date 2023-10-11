@@ -12,6 +12,7 @@ public class WeatherData {
     private List<Weather> weather;
     private Main main;
     private String name;
+    private Wind wind;
 
     @Data
     public static class Weather {
@@ -23,5 +24,10 @@ public class WeatherData {
         private double temp;
         @SerializedName("feels_like")
         private double feelsLike;
+    }
+
+    @Data
+    public static class Wind {
+        private double speed;
     }
 }
