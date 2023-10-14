@@ -19,7 +19,7 @@ public class DefaultCityService {
             var userWithCity = user.get();
             userWithCity.setDefaultCity(message.getText());
             userRepository.save(userWithCity);
-            return "Город " + message.getText() + " установлен в качестве города по умолчанию";
+            return "Город '" + message.getText() + "' установлен в качестве города по умолчанию";
         }
         return "Ошибка";
     }

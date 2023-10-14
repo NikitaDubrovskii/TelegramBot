@@ -3,6 +3,7 @@ package by.dubrovsky.telegrambot.action.impl;
 import by.dubrovsky.telegrambot.action.Action;
 import by.dubrovsky.telegrambot.repository.UserRepository;
 import by.dubrovsky.telegrambot.service.WeatherService;
+import by.dubrovsky.telegrambot.util.MenuKeyboard;
 import com.vdurmont.emoji.EmojiParser;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
@@ -20,10 +21,12 @@ public class WeatherAction implements Action {
 
     private final WeatherService weatherService;
     private final UserRepository userRepository;
+    private final MenuKeyboard menuKeyboard;
 
-    public WeatherAction(WeatherService weatherService, UserRepository userRepository) {
+    public WeatherAction(WeatherService weatherService, UserRepository userRepository, MenuKeyboard menuKeyboard) {
         this.weatherService = weatherService;
         this.userRepository = userRepository;
+        this.menuKeyboard = menuKeyboard;
     }
 
     @Override
@@ -43,7 +46,11 @@ public class WeatherAction implements Action {
 
         var answer = weatherService.getWeather(message);
 
-        return new SendMessage(chatId, answer);
+        var replyKeyboardMarkup = menuKeyboard.getReplyKeyboardMarkup();
+        var messageToSend = new SendMessage(chatId, answer);
+        messageToSend.setReplyMarkup(replyKeyboardMarkup);
+
+        return messageToSend;
     }
 
     private SendMessage makeKeyboard(SendMessage message) {
@@ -60,6 +67,10 @@ public class WeatherAction implements Action {
 
         var row = new KeyboardRow();
         row.add(defaultCity);
+        keyboardRows.add(row);
+
+        row = new KeyboardRow();
+        row.add("Меню");
         keyboardRows.add(row);
 
         replyKeyboardMarkup.setKeyboard(keyboardRows);

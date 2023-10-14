@@ -16,6 +16,7 @@ public class BotView {
     private final HelpAction helpAction;
     private final SettingsAction settingsAction;
     private final DefaultCityAction defaultCityAction;
+    private final MenuAction menuAction;
 
     private Map<String, Action> actions;
 
@@ -25,12 +26,13 @@ public class BotView {
             "Настройки", "/settings"
     );
 
-    public BotView(StartAction startAction, WeatherAction weatherAction, HelpAction helpAction, SettingsAction settingsAction, DefaultCityAction defaultCityAction) {
+    public BotView(StartAction startAction, WeatherAction weatherAction, HelpAction helpAction, SettingsAction settingsAction, DefaultCityAction defaultCityAction, MenuAction menuAction) {
         this.startAction = startAction;
         this.weatherAction = weatherAction;
         this.helpAction = helpAction;
         this.settingsAction = settingsAction;
         this.defaultCityAction = defaultCityAction;
+        this.menuAction = menuAction;
     }
 
     public Map<String, Action> getActions() {
@@ -46,7 +48,8 @@ public class BotView {
                 ),
                 "/weather", weatherAction,
                 "/settings", settingsAction,
-                "Установить город по умолчанию", defaultCityAction
+                "Установить город по умолчанию", defaultCityAction,
+                "Меню", menuAction
         );
     }
 

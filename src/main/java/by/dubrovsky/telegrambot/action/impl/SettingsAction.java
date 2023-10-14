@@ -29,14 +29,14 @@ public class SettingsAction implements Action {
 
     @Override
     public BotApiMethod<Message> callback(Update update) {
-        var message = update.getMessage();
+        /*var message = update.getMessage();
         var chatId = message.getChatId().toString();
         var messageToSend = new SendMessage();
         if (message.getText().contains("Назад")) {
             messageToSend.setChatId(chatId);
             messageToSend.setText("Назад");
-        }
-        return messageToSend;
+        }*/
+        return handle(update);
     }
 
     private SendMessage makeKeyboard(SendMessage message) {
@@ -48,7 +48,7 @@ public class SettingsAction implements Action {
         keyboardRows.add(row);
 
         row = new KeyboardRow();
-        row.add("Назад");
+        row.add("Меню");
         keyboardRows.add(row);
 
         replyKeyboardMarkup.setKeyboard(keyboardRows);
