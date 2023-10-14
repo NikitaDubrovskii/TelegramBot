@@ -1,4 +1,4 @@
-package by.dubrovsky.telegrambot.service;
+package by.dubrovsky.telegrambot;
 
 import by.dubrovsky.telegrambot.action.Action;
 import by.dubrovsky.telegrambot.config.BotConfig;
@@ -7,7 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
-import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -19,10 +19,10 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class TelegramBot extends TelegramLongPollingBot {
 
-    final BotConfig botConfig;
+    private final BotConfig botConfig;
     public final BotView botView;
 
-    public static final String ERROR_TEXT = "Ошибка: ";
+    private static final String ERROR_TEXT = "Ошибка: ";
 
     private final Map<Long, String> bindingBy = new ConcurrentHashMap<>();
     private final Map<String, Action> actions;
@@ -67,48 +67,6 @@ public class TelegramBot extends TelegramLongPollingBot {
         return actionsRuToEng.getOrDefault(actionRuOrEng, actionRuOrEng);
     }
 
-    // редактирование ответа от бота
-    private void executeEditMessageText(long messageId, long chatId, String text) {
-        EditMessageText message = new EditMessageText();
-        message.setChatId(chatId);
-        message.setText(text);
-        message.setMessageId((int) messageId);
-
-        try {
-            execute(message);
-        } catch (TelegramApiException e) {
-            log.error(ERROR_TEXT + e.getMessage());
-        }
-    }
-
-/*    private void register(Long chatId) {
-        SendMessage message = new SendMessage();
-        message.setChatId(chatId);
-        message.setText("Вы хотите зарегистрироваться?");
-
-        InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
-        List<List<InlineKeyboardButton>> keyboardButtonList = new ArrayList<>();
-        List<InlineKeyboardButton> keyboardButtons = new ArrayList<>();
-
-        var yesButton = new InlineKeyboardButton();
-        yesButton.setText("Да");
-        yesButton.setCallbackData(YES_BTN);
-
-        var noButton = new InlineKeyboardButton();
-        noButton.setText("Нет");
-        noButton.setCallbackData(NO_BTN);
-
-        keyboardButtons.add(yesButton);
-        keyboardButtons.add(noButton);
-
-        keyboardButtonList.add(keyboardButtons);
-
-        keyboardMarkup.setKeyboard(keyboardButtonList);
-        message.setReplyMarkup(keyboardMarkup);
-
-        executeMessage(message);
-    }*/
-
     private void executeMessage(BotApiMethod<Message> message) {
         try {
             execute(message);
@@ -117,16 +75,12 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
     }
 
-/*    @Scheduled(cron = "${cron.scheduler}")
-    private void sendAds() {
-        var ads = adsRepository.findAll();
-        var users= userRepository.findAll();
-
-        for (Ads ad : ads) {
-            for (User user : users) {
-                prepareAndSendMessage(user.getChatId(), ad.getAd());
-            }
+    private void executeMessage(SendMessage message) {
+        try {
+            execute(message);
+        } catch (TelegramApiException e) {
+            log.error(ERROR_TEXT + e.getMessage());
         }
-    }*/
+    }
 
 }

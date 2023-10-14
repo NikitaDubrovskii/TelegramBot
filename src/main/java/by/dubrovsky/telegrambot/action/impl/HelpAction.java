@@ -12,7 +12,7 @@ import java.util.List;
 @Component
 public class HelpAction implements Action {
 
-    static final String DISCRIPTION_TEXT = "Этот бот сделан для демонстрации моих возможностей и для Максима. ЛТ.";
+    static final String DISCRIPTION_TEXT = "Этот бот сделан для демонстрации.";
     private final List<String> actions;
 
     public HelpAction(List<String> actions) {

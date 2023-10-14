@@ -50,13 +50,21 @@ public class StartAction implements Action {
     private SendMessage makeKeyboard(SendMessage message) {
         var replyKeyboardMarkup = new ReplyKeyboardMarkup();
         List<KeyboardRow> keyboardRows = new ArrayList<>();
+
         var row = new KeyboardRow();
         row.add("Погода");
-        row.add("Помощь");
+        keyboardRows.add(row);
 
+        row = new KeyboardRow();
+        row.add("Помощь");
+        keyboardRows.add(row);
+
+        row = new KeyboardRow();
+        row.add("Настройки");
         keyboardRows.add(row);
 
         replyKeyboardMarkup.setKeyboard(keyboardRows);
+        replyKeyboardMarkup.setResizeKeyboard(true);
 
         message.setReplyMarkup(replyKeyboardMarkup);
 

@@ -1,6 +1,6 @@
 package by.dubrovsky.telegrambot.config;
 
-import by.dubrovsky.telegrambot.service.TelegramBot;
+import by.dubrovsky.telegrambot.TelegramBot;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.ContextRefreshedEvent;
