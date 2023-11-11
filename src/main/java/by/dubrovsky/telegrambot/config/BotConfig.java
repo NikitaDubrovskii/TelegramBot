@@ -24,7 +24,10 @@ public class BotConfig {
     @Value("${openweather.token}")
     String weatherToken;
 
-    @Value("${openweather.url}")
-    String weatherUrl;
+    @Value("${openweather.url.now}")
+    String weatherUrlNow;
+
+    @Value("${openweather.url.5days}")
+    String weatherUrl5Days;
 
 }
