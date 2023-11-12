@@ -15,27 +15,20 @@ import java.util.List;
 @Component
 public class SettingsAction implements Action {
 
+    private static final String ANSWER = "Выберите настройку";
+
     @Override
     public BotApiMethod<Message> handle(Update update) {
         var message = update.getMessage();
         var chatId = message.getChatId().toString();
 
-        var answer = "Выберите, что хотите настроить";
-
-        var messageToSend = new SendMessage(chatId, answer);
+        var messageToSend = new SendMessage(chatId, ANSWER);
 
         return makeKeyboard(messageToSend);
     }
 
     @Override
     public BotApiMethod<Message> callback(Update update) {
-        /*var message = update.getMessage();
-        var chatId = message.getChatId().toString();
-        var messageToSend = new SendMessage();
-        if (message.getText().contains("Назад")) {
-            messageToSend.setChatId(chatId);
-            messageToSend.setText("Назад");
-        }*/
         return handle(update);
     }
 

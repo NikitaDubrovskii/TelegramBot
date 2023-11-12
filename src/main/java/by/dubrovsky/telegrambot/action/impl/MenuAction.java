@@ -12,6 +12,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 public class MenuAction implements Action {
 
     private final MenuKeyboard menuKeyboard;
+    private static final String ANSWER = "Вы перешли в главное меню";
 
     public MenuAction(MenuKeyboard menuKeyboard) {
         this.menuKeyboard = menuKeyboard;
@@ -22,8 +23,7 @@ public class MenuAction implements Action {
         var message = update.getMessage();
         var chatId = message.getChatId().toString();
 
-        var answer = "Вы перешли в главное меню";
-        SendMessage messageToSend = new SendMessage(chatId, answer);
+        SendMessage messageToSend = new SendMessage(chatId, ANSWER);
 
         var replyKeyboardMarkup = menuKeyboard.getReplyKeyboardMarkup();
         messageToSend.setReplyMarkup(replyKeyboardMarkup);

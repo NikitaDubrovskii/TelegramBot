@@ -5,7 +5,6 @@ import by.dubrovsky.telegrambot.repository.UserRepository;
 import by.dubrovsky.telegrambot.service.WeatherService;
 import by.dubrovsky.telegrambot.util.MenuKeyboard;
 import by.dubrovsky.telegrambot.util.WeatherMenuKeyboard;
-import com.vdurmont.emoji.EmojiParser;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -14,6 +13,8 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 
 @Component
 public class WeatherNowAction implements Action {
+
+    public static final String ANSWER = "В каком городе Вас интересует погода?";
 
     private final WeatherService weatherService;
     private final UserRepository userRepository;
@@ -32,8 +33,7 @@ public class WeatherNowAction implements Action {
         var message = update.getMessage();
         var chatId = message.getChatId().toString();
 
-        var answer = EmojiParser.parseToUnicode("В каком городе Вас интересует погода?");
-        var messageToSend = new SendMessage(chatId, answer);
+        var messageToSend = new SendMessage(chatId, ANSWER);
 
         var replyKeyboardMarkup = weatherMenuKeyboard.getReplyKeyboardMarkup(userRepository, message.getChatId());
         messageToSend.setReplyMarkup(replyKeyboardMarkup);

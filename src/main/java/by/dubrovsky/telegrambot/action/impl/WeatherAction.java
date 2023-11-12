@@ -14,14 +14,15 @@ import java.util.List;
 
 @Component
 public class WeatherAction implements Action {
+
+    public static final String ANSWER = "Выберите вариант отображения погоды";
+
     @Override
     public BotApiMethod<Message> handle(Update update) {
         var message = update.getMessage();
         var chatId = message.getChatId().toString();
 
-        var answer = "Выберите";
-
-        var messageToSend = new SendMessage(chatId, answer);
+        var messageToSend = new SendMessage(chatId, ANSWER);
 
         return makeKeyboard(messageToSend);
     }

@@ -5,7 +5,6 @@ import com.google.gson.annotations.SerializedName;
 import lombok.Data;
 
 import java.util.ArrayList;
-import java.util.Date;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)

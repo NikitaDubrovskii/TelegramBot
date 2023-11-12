@@ -12,6 +12,8 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 @Component
 public class DefaultCityAction implements Action {
 
+    private static final String ANSWER = "Введите название города, который Вы хотите установить по умолчанию";
+
     private final DefaultCityService defaultCityService;
     private final MenuKeyboard menuKeyboard;
 
@@ -24,9 +26,8 @@ public class DefaultCityAction implements Action {
     public BotApiMethod<Message> handle(Update update) {
         var message = update.getMessage();
         var chatId = message.getChatId().toString();
-        String answer = "Введите название города, который вы хотите установить по умолчанию";
 
-        return new SendMessage(chatId, answer);
+        return new SendMessage(chatId, ANSWER);
     }
 
     @Override
