@@ -13,14 +13,13 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 @Component
-public class WeatherNowAction implements Action {
-
+public class Weather12HoursAction implements Action {
     private final WeatherService weatherService;
     private final UserRepository userRepository;
     private final MenuKeyboard menuKeyboard;
     private final WeatherMenuKeyboard weatherMenuKeyboard;
 
-    public WeatherNowAction(WeatherService weatherService, UserRepository userRepository, MenuKeyboard menuKeyboard, WeatherMenuKeyboard weatherMenuKeyboard) {
+    public Weather12HoursAction(WeatherService weatherService, UserRepository userRepository, MenuKeyboard menuKeyboard, WeatherMenuKeyboard weatherMenuKeyboard) {
         this.weatherService = weatherService;
         this.userRepository = userRepository;
         this.menuKeyboard = menuKeyboard;
@@ -46,7 +45,7 @@ public class WeatherNowAction implements Action {
         var message = update.getMessage().getText();
         var chatId = update.getMessage().getChatId().toString();
 
-        var answer = weatherService.getWeatherNow(message);
+        var answer = weatherService.getWeather12Hours(message);
         var replyKeyboardMarkup = menuKeyboard.getReplyKeyboardMarkup();
         var messageToSend = new SendMessage(chatId, answer);
         messageToSend.setReplyMarkup(replyKeyboardMarkup);

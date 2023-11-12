@@ -37,6 +37,7 @@ public class WeatherAction implements Action {
 
         var row = new KeyboardRow();
         row.add("Погода сейчас");
+        row.add("Погода на 12 часов");
         row.add("Погода на 3 дня");
         keyboardRows.add(row);
 
