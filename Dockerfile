@@ -2,16 +2,13 @@
 #
 #WORKDIR /app
 #
-#COPY pom.xml .
-#COPY src ./scr
-#
-#RUN mvn package -DskipTests
-#
 #COPY target/TelegramBot-0.0.1-SNAPSHOT.jar app.jar
 #
 #EXPOSE 8080
 #
 #CMD ["java", "-jar", "--enable-preview", "app.jar"]
+
+
 
 # Этап сборки
 FROM maven:3.9.5-amazoncorretto-21 AS builder
