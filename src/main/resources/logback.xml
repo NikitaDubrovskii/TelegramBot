@@ -1,7 +1,7 @@
 <configuration>
 
 <!--    <property name="HOME_LOG" value="/var/log/proj3ct.io/tg-simple-bot/app.log"/>--> // для сервера линукс
-    <property name="HOME_LOG" value="W:/JavaProjects/WORK/TelegramBot/TelegramBot v1/TelegramBot/log/proj3ct.io/tg-simple-bot/app.log"/> // для тестирования
+    <property name="HOME_LOG" value="W:/JavaProjects/WORK/TelegramBot/TelegramBot_v1/TelegramBot/log/proj3ct.io/tg-simple-bot/app.log"/> // для тестирования
 
     <appender name="FILE-ROLLING" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${HOME_LOG}</file>

@@ -20,6 +20,7 @@ public class BotView {
     private final SettingsAction settingsAction;
     private final DefaultCityAction defaultCityAction;
     private final MenuAction menuAction;
+    private final ExitAction exitAction;
 
     private Map<String, Action> actions;
 
@@ -29,10 +30,14 @@ public class BotView {
             "Погода на 12 часов", "/weather12Hours",
             "Погода на 3 дня", "/weather3Days",
             "Помощь", "/help",
-            "Настройки", "/settings"
+            "Настройки", "/settings",
+            "Выход", "/exit"
     );
 
-    public BotView(StartAction startAction, WeatherNowAction weatherNowAction, WeatherAction weatherAction, Weather12HoursAction weather12HoursAction, Weather3DaysAction weather3DaysAction, HelpAction helpAction, SettingsAction settingsAction, DefaultCityAction defaultCityAction, MenuAction menuAction) {
+    public BotView(StartAction startAction, WeatherNowAction weatherNowAction, WeatherAction weatherAction,
+                   Weather12HoursAction weather12HoursAction, Weather3DaysAction weather3DaysAction,
+                   HelpAction helpAction, SettingsAction settingsAction, DefaultCityAction defaultCityAction,
+                   MenuAction menuAction, ExitAction exitAction) {
         this.startAction = startAction;
         this.weatherNowAction = weatherNowAction;
         this.weatherAction = weatherAction;
@@ -42,6 +47,7 @@ public class BotView {
         this.settingsAction = settingsAction;
         this.defaultCityAction = defaultCityAction;
         this.menuAction = menuAction;
+        this.exitAction = exitAction;
     }
 
     public Map<String, Action> getActions() {
@@ -63,7 +69,8 @@ public class BotView {
                 "/weather3Days", weather3DaysAction,
                 "/settings", settingsAction,
                 "Установить город по умолчанию", defaultCityAction,
-                "Меню", menuAction
+                "Меню", menuAction,
+                "/exit", exitAction
         );
     }
 

@@ -5,12 +5,14 @@ import by.dubrovsky.telegrambot.repository.UserRepository;
 import by.dubrovsky.telegrambot.service.WeatherService;
 import by.dubrovsky.telegrambot.util.MenuKeyboard;
 import by.dubrovsky.telegrambot.util.WeatherMenuKeyboard;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
+@Slf4j
 @Component
 public class WeatherNowAction implements Action {
 
@@ -50,6 +52,8 @@ public class WeatherNowAction implements Action {
         var replyKeyboardMarkup = menuKeyboard.getReplyKeyboardMarkup();
         var messageToSend = new SendMessage(chatId, answer);
         messageToSend.setReplyMarkup(replyKeyboardMarkup);
+
+        log.info("Отображена погода сейчас в городе - " + message);
 
         return messageToSend;
     }
