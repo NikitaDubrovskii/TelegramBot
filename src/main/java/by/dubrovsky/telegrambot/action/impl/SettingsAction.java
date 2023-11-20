@@ -44,9 +44,9 @@ public class SettingsAction implements Action {
         row.add("Меню");
         keyboardRows.add(row);
 
-        row = new KeyboardRow();
+/*        row = new KeyboardRow();
         row.add("Выход");
-        keyboardRows.add(row);
+        keyboardRows.add(row);*/
 
         replyKeyboardMarkup.setKeyboard(keyboardRows);
         replyKeyboardMarkup.setResizeKeyboard(true);

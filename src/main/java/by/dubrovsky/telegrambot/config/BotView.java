@@ -30,8 +30,8 @@ public class BotView {
             "Погода на 12 часов", "/weather12Hours",
             "Погода на 3 дня", "/weather3Days",
             "Помощь", "/help",
-            "Настройки", "/settings",
-            "Выход", "/exit"
+            "Настройки", "/settings"
+            /*"Выход", "/exit"*/
     );
 
     public BotView(StartAction startAction, WeatherNowAction weatherNowAction, WeatherAction weatherAction,
@@ -69,8 +69,8 @@ public class BotView {
                 "/weather3Days", weather3DaysAction,
                 "/settings", settingsAction,
                 "Установить город по умолчанию", defaultCityAction,
-                "Меню", menuAction,
-                "/exit", exitAction
+                "Меню", menuAction
+                /*"/exit", exitAction*/
         );
     }
 
